@@ -16,33 +16,47 @@ LIMIT_HOUR = 20
 LIMIT_DAY = 100
 
 # --- State Synchronization Logic ---
+if "sync_count" not in st.session_state:
+    st.session_state.sync_count = 0
+
 def sync_to_local_storage():
-    """Saves critical session state to LocalStorage."""
+    """Saves all critical state in ONE call with a unique key per run."""
     if st.session_state.get("logged_in"):
-        local_storage.setItem("chatbot_username", st.session_state.username, key="sync_user")
-        chats_key = f"chatbot_chats_{st.session_state.username}"
-        local_storage.setItem(chats_key, json.dumps(st.session_state.all_user_chats, ensure_ascii=False), key="sync_chats")
-        rate_key = f"chatbot_rate_{st.session_state.username}"
-        local_storage.setItem(rate_key, json.dumps(st.session_state.rate_timestamps), key="sync_rate")
+        st.session_state.sync_count += 1
+        sync_key = f"sync_full_{st.session_state.sync_count}"
+        
+        # Package everything together to minimize component calls
+        payload = {
+            "username": st.session_state.username,
+            "chats": st.session_state.all_user_chats,
+            "rate": st.session_state.rate_timestamps
+        }
+        # Save as a single blob
+        local_storage.setItem("chatbot_full_state", json.dumps(payload, ensure_ascii=False), key=sync_key)
 
 def init_from_local_storage():
-    """Initializes session state from LocalStorage values."""
+    """Initializes session state from the single blob in LocalStorage."""
     if "initialized" not in st.session_state:
-        username = local_storage.getItem("chatbot_username")
-        if username:
-            st.session_state.username = username
-            st.session_state.logged_in = True
-            chats_key = f"chatbot_chats_{username}"
-            raw_chats = local_storage.getItem(chats_key)
-            st.session_state.all_user_chats = json.loads(raw_chats) if raw_chats else {}
-            rate_key = f"chatbot_rate_{username}"
-            raw_rate = local_storage.getItem(rate_key)
-            st.session_state.rate_timestamps = json.loads(raw_rate) if raw_rate else []
+        raw_data = local_storage.getItem("chatbot_full_state")
+        if raw_data:
+            try:
+                data = json.loads(raw_data)
+                st.session_state.username = data.get("username", "")
+                st.session_state.logged_in = True if st.session_state.username else False
+                st.session_state.all_user_chats = data.get("chats", {})
+                st.session_state.rate_timestamps = data.get("rate", [])
+            except:
+                st.session_state.username = ""
+                st.session_state.logged_in = False
+                st.session_state.all_user_chats = {}
+                st.session_state.rate_timestamps = []
         else:
+            # Fallback for old migration or fresh start
             st.session_state.username = ""
             st.session_state.logged_in = False
             st.session_state.all_user_chats = {}
             st.session_state.rate_timestamps = []
+            
         st.session_state.initialized = True
 
 init_from_local_storage()
@@ -104,7 +118,7 @@ with st.sidebar:
     c_user, c_logout = st.columns([2, 1], vertical_alignment="center")
     c_user.write(f"👤 **{username}**")
     if c_logout.button("Quitter", type="tertiary", help="Déconnexion"):
-        local_storage.deleteItem("chatbot_username")
+        local_storage.deleteAll()
         st.session_state.logged_in = False
         st.rerun()
     
@@ -212,4 +226,5 @@ if prompt := st.chat_input("Votre message ici..."):
                 except Exception as e:
                     st.error(str(e))
 
+# Final safety sync
 sync_to_local_storage()
