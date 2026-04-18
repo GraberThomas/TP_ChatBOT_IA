@@ -12,3 +12,5 @@ wheels/
 .env
 
 chatbot.log
+
+.streamlit/secrets.toml
