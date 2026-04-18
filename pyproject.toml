@@ -8,4 +8,11 @@ dependencies = [
     "openai>=2.30.0",
     "python-dotenv>=1.2.2",
     "streamlit>=1.55.0",
+    "streamlit-local-storage>=0.0.25",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+chatbot-cli = "chatbot.cli:main"
