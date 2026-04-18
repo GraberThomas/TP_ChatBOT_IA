@@ -2,7 +2,7 @@ import time
 import logging
 from typing import Iterable, Optional, Dict, Any
 import os
-from dotenv import load_dotenv
+import streamlit as st
 from openai import OpenAI, OpenAIError
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -21,29 +21,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger("Chatbot")
 
-load_dotenv()
-
 # Métriques globales (simulées pour le TP)
 metrics = {
     "total_requests": 0,
     "total_errors": 0,
     "total_response_time": 0.0,
-    "user_satisfaction": [], # Liste de scores 1-5
-    "question_types": {}     # Compteur par type
 }
 
 def get_client(provider: str = "groq") -> OpenAI:
-    """Retourne le client API approprié selon le fournisseur."""
+    """Retourne le client API approprié en utilisant st.secrets."""
     if provider == "groq":
-        api_key = os.environ.get("GROQ_API_KEY")
+        # Priorité aux secrets Streamlit, fallback sur variables d'environnement
+        try:
+            api_key = st.secrets.get("GROQ_API_KEY")
+        except:
+            api_key = os.environ.get("GROQ_API_KEY")
+            
         if not api_key:
             raise ValueError("GROQ_API_KEY n'est pas configuré")
         return OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
-    elif provider == "openai":
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY n'est pas configuré")
-        return OpenAI(api_key=api_key)
     else:
         raise ValueError(f"Fournisseur inconnu : {provider}")
 
