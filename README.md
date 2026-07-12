@@ -15,10 +15,62 @@ Le projet adopte une structure professionnelle dite "src layout" pour séparer l
 ├── logs/
 │   └── chatbot.log         # Fichier de logs persistant pour l'audit et le monitoring
 ├── app.py                  # Point d'entrée Web (Streamlit) : Gestion de l'UI et persistance localStorage
-├── cli.py                  # Point d'entrée Terminal : Version légère pour exécution en ligne de commande
 ├── pyproject.toml          # Gestionnaire de dépendances (uv) et métadonnées du package
+├── requirements.txt        # Dépendances figées (utilisé par Streamlit Cloud / pip)
 └── README.md               # Documentation technique
 ```
+
+---
+
+## ⚙️ Installation et Lancement
+
+### 1. Prérequis
+*   **Python 3.12** (voir `.python-version`).
+*   Une **clé API Groq** (gratuite) à récupérer sur [console.groq.com/keys](https://console.groq.com/keys).
+
+### 2. Récupération du projet
+```bash
+git clone <url-du-depot>
+cd TP_ChatBOT_IA
+```
+
+### 3. Installation des dépendances
+
+#### Option A — avec `uv` (recommandé)
+[`uv`](https://docs.astral.sh/uv/) crée automatiquement l'environnement virtuel et installe les versions figées via `uv.lock` :
+```bash
+uv sync
+```
+
+#### Option B — avec `pip`
+```bash
+python -m venv .venv
+source .venv/bin/activate      # Windows : .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 4. Configuration de la clé API
+L'application lit la clé depuis les **secrets Streamlit** en priorité, avec repli sur les **variables d'environnement**.
+
+**Méthode recommandée (secrets Streamlit)** — créez le fichier `.streamlit/secrets.toml` (déjà ignoré par Git) :
+```toml
+GROQ_API_KEY = "gsk_votre_cle_ici"
+```
+
+**Alternative (variable d'environnement)** :
+```bash
+export GROQ_API_KEY="gsk_votre_cle_ici"   # Windows : set GROQ_API_KEY=...
+```
+
+### 5. Lancement de l'application Web (Streamlit)
+```bash
+uv run streamlit run app.py      # avec uv
+# ou, avec l'environnement pip activé :
+streamlit run app.py
+```
+L'interface est alors accessible sur [http://localhost:8501](http://localhost:8501).
+
+> **Déploiement sur Streamlit Cloud** : renseignez `GROQ_API_KEY` dans *Settings → Secrets* de l'application ; `requirements.txt` est utilisé automatiquement pour l'installation.
 
 ---
 
