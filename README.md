@@ -2,6 +2,8 @@
 
 Ce projet présente une version industrialisée d'un chatbot basé sur l'API Groq. L'objectif était de transformer un prototype fonctionnel en une application robuste, capable de gérer des contraintes de production (erreurs, limites, monitoring) tout en offrant une expérience utilisateur moderne.
 
+🔗 **Application déployée :** [tpchatbotia-46aj2zacnnrdljeaocdxgy.streamlit.app](https://tpchatbotia-46aj2zacnnrdljeaocdxgy.streamlit.app/)
+
 ## 🏗️ Architecture et Structure
 
 Le projet adopte une structure professionnelle dite "src layout" pour séparer la logique métier de l'interface utilisateur.
@@ -70,7 +72,7 @@ streamlit run app.py
 ```
 L'interface est alors accessible sur [http://localhost:8501](http://localhost:8501).
 
-> **Déploiement sur Streamlit Cloud** : renseignez `GROQ_API_KEY` dans *Settings → Secrets* de l'application ; `requirements.txt` est utilisé automatiquement pour l'installation.
+> **Déploiement sur Streamlit Cloud** : l'application est déjà en ligne à l'adresse [tpchatbotia-46aj2zacnnrdljeaocdxgy.streamlit.app](https://tpchatbotia-46aj2zacnnrdljeaocdxgy.streamlit.app/). Pour votre propre déploiement, renseignez `GROQ_API_KEY` dans *Settings → Secrets* de l'application ; `requirements.txt` est utilisé automatiquement pour l'installation.
 
 ---
 
